@@ -1,6 +1,7 @@
 from pyrogram import filters, Client as Mbot
 import bs4, requests,re,asyncio
 import os,traceback,random
+from urllib.parse import urlsplit, urlunsplit
 from bot import LOG_GROUP,DUMP_GROUP
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0",
@@ -20,6 +21,15 @@ async def _send_long_message(client, chat_id, text, chunk_size=4000):
         return
     for i in range(0, len(text), chunk_size):
         await client.send_message(chat_id, text[i:i + chunk_size])
+
+def _to_ddinstagram(link):
+    parsed = urlsplit(link)
+    host = parsed.netloc
+    if host.startswith("www."):
+        host = host[4:]
+    if host.endswith("instagram.com"):
+        host = "ddinstagram.com"
+    return urlunsplit((parsed.scheme, host, parsed.path, parsed.query, parsed.fragment))
         
 @Mbot.on_message(filters.regex(r'https?://.*instagram[^\s]+') & filters.incoming)
 async def link_handler(Mbot, message):
@@ -27,9 +37,7 @@ async def link_handler(Mbot, message):
     global headers
     try:
         m = await message.reply_sticker("CAACAgIAAxkBATWhF2Qz1Y-FKIKqlw88oYgN8N82FtC8AAJnAAPb234AAT3fFO9hR5GfHgQ")
-        url = link.replace("www.instagram.com", "ddinstagram.com")
-        url = url.replace("instagram.com", "ddinstagram.com")
-        url = url.replace("www.ddinstagram.com", "ddinstagram.com")
+        url = _to_ddinstagram(link)
         url=url.replace("==","%3D%3D")
         if url.endswith("="):
            dump_file=await message.reply_video(url[:-1],caption="Thank you for using - @InstaReelsdownbot")
