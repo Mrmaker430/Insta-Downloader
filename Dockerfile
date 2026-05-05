@@ -1,13 +1,20 @@
-FROM python:3.10-slim-buster
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3-pip git \
-    && rm -rf /var/lib/apt/lists/*
-RUN pip3 install --upgrade pip
+FROM python:3.10-slim
 
-RUN mkdir /Insta-DL
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /Insta-DL
-#RUN apt update && apt upgrade -y && apt install ffmpeg python3 python3-pip apt-utils -y
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir -U -r requirements.txt
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ffmpeg \
+        git \
+    && rm -rf /var/lib/apt/lists/*
+    
+COPY requirements.txt ./
+RUN python -m pip install --upgrade pip \
+    && python -m pip install --no-cache-dir -r requirements.txt
+    
 COPY . .
-CMD ["python3", "bot.py"]
+
+CMD ["python", "bot.py"]
