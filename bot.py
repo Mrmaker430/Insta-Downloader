@@ -4,6 +4,8 @@ import bs4, requests, logging
 from os import environ,cpu_count
 from dotenv import load_dotenv
 import multiprocessing 
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from threading import Thread
 load_dotenv("config.env")
 API_ID=int(environ['API_ID'])
 API_HASH=environ['API_HASH']
@@ -24,8 +26,24 @@ Mbot=Client(name="instabot",
             plugins=dict(root="plugins"),
             workers=64,
             sleep_threshold=22)
+
+def run_healthcheck_server():
+    port = environ.get("PORT")
+    if not port:
+        return
+    class HealthHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(b"Insta-DL bot is running")
+        def log_message(self, format, *args):
+            return
+    server = HTTPServer(("0.0.0.0", int(port)), HealthHandler)
+    Thread(target=server.serve_forever, daemon=True).start()
 if __name__ == '__main__':
     print (" Insta-DL Bot started  running...")
+    run_healthcheck_server()
     num_workers = cpu_count()
     pool = multiprocessing.Pool(processes=num_workers)
     Mbot.run()
