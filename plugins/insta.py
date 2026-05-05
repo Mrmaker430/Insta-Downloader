@@ -27,7 +27,9 @@ async def link_handler(Mbot, message):
     global headers
     try:
         m = await message.reply_sticker("CAACAgIAAxkBATWhF2Qz1Y-FKIKqlw88oYgN8N82FtC8AAJnAAPb234AAT3fFO9hR5GfHgQ")
-        url= link.replace("instagram.com","ddinstagram.com")
+        url = link.replace("www.instagram.com", "ddinstagram.com")
+        url = url.replace("instagram.com", "ddinstagram.com")
+        url = url.replace("www.ddinstagram.com", "ddinstagram.com")
         url=url.replace("==","%3D%3D")
         if url.endswith("="):
            dump_file=await message.reply_video(url[:-1],caption="Thank you for using - @InstaReelsdownbot")
