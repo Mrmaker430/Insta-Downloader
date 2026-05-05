@@ -14,6 +14,13 @@ headers = {
     "Connection": "keep-alive",
     "Referer": "https://saveig.app/en",
 }
+
+async def _send_long_message(client, chat_id, text, chunk_size=4000):
+    if not text:
+        return
+    for i in range(0, len(text), chunk_size):
+        await client.send_message(chat_id, text[i:i + chunk_size])
+        
 @Mbot.on_message(filters.regex(r'https?://.*instagram[^\s]+') & filters.incoming)
 async def link_handler(Mbot, message):
     link = message.matches[0].group(0)
@@ -103,7 +110,7 @@ async def link_handler(Mbot, message):
           #  await message.reply_text(f"https://ddinstagram.com{content_value}")
             if LOG_GROUP:
                await Mbot.send_message(LOG_GROUP,f"Instagram {e} {link}")
-               await Mbot.send_message(LOG_GROUP, traceback.format_exc())
+               await _send_long_message(Mbot, LOG_GROUP, traceback.format_exc())
           #     await message.reply(tracemsg)
             ##optinal 
             await message.reply(f"400: Sorry, Unable To Find It  try another or report it  to @masterolic or support chat @spotify_supportbot 🤖  ")
